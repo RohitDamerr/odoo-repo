@@ -12,6 +12,8 @@ import DriverListPage from './pages/DriverListPage';
 import DriverFormPage from './pages/DriverFormPage';
 import DriverDetailPage from './pages/DriverDetailPage';
 import DashboardPage from './pages/DashboardPage';
+import MaintenanceListPage from './pages/MaintenanceListPage';
+import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
 
 export default function App() {
   return (
@@ -31,7 +33,8 @@ export default function App() {
         <Route path="/trips" element={<TripListPage />} />
         <Route path="/trips/new" element={<TripFormPage />} />
         <Route path="/trips/:id" element={<TripDetailPage />} />
-        <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
+        <Route path="/maintenance" element={<MaintenanceListPage />} />
+        <Route path="/maintenance/:id" element={<MaintenanceDetailPage />} />
         <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
         <Route path="/expenses" element={<Placeholder title="Expenses" />} />
         <Route path="/reports" element={<Placeholder title="Reports" />} />
