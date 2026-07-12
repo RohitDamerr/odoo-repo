@@ -2,6 +2,7 @@ const FuelLog = require('../../models/FuelLog');
 const Vehicle = require('../../models/Vehicle');
 const Trip = require('../../models/Trip');
 const ApiError = require('../../errors/ApiError');
+const { onFuelLogExpense } = require('../../services/integration.service');
 
 const create = async (data) => {
     const vehicle = await Vehicle.findById(data.vehicle);
@@ -24,6 +25,9 @@ const create = async (data) => {
         vehicle.odometer = data.odometer;
         await vehicle.save();
     }
+
+    // Cross-integration: fuel log → expense record
+    onFuelLogExpense(fuelLog).catch(() => {}); // fire-and-forget
 
     return fuelLog;
 };
