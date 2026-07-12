@@ -14,6 +14,7 @@ import DriverDetailPage from './pages/DriverDetailPage';
 import DashboardPage from './pages/DashboardPage';
 import MaintenanceListPage from './pages/MaintenanceListPage';
 import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
         <Route path="/expenses" element={<Placeholder title="Expenses" />} />
         <Route path="/reports" element={<Placeholder title="Reports" />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

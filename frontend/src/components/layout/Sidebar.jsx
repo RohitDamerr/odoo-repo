@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/fuel', label: 'Fuel', icon: 'local_gas_station', roles: null },
   { to: '/expenses', label: 'Expenses', icon: 'receipt_long', roles: null },
   { to: '/reports', label: 'Reports', icon: 'bar_chart', roles: null },
+  { to: '/settings', label: 'Settings', icon: 'settings', roles: null },
 ];
 
 const RESTRICTED_ROLES = {
