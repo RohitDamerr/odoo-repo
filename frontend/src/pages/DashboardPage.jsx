@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -7,15 +7,44 @@ import Table from '../components/ui/Table';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 
+const PRESETS = [
+  { label: 'This Month', get: () => { const d = new Date(); return { start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }; } },
+  { label: 'Last Month', get: () => { const d = new Date(); d.setMonth(d.getMonth()-1); return { start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }; } },
+  { label: 'This Quarter', get: () => { const d = new Date(); const q = Math.floor(d.getMonth() / 3); return { start: new Date(d.getFullYear(), q*3, 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), q*3+3, 0).toISOString().slice(0,10) }; } },
+  { label: 'This Year', get: () => { const d = new Date(); return { start: new Date(d.getFullYear(), 0, 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), 11, 31).toISOString().slice(0,10) }; } },
+  { label: 'Custom', get: null },
+];
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, isAdmin, isFleetManager, isDispatcher, isSafetyOfficer, isFinancialAnalyst } = useAuth();
   const [kpis, setKpis] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [preset, setPreset] = useState('This Month');
+  const [startDate, setStartDate] = useState(() => PRESETS[0].get().start);
+  const [endDate, setEndDate] = useState(() => PRESETS[0].get().end);
 
-  useEffect(() => {
-    api.get('/dashboard/kpis').then(({ data }) => setKpis(data.data)).finally(() => setLoading(false));
+  const fetchData = useCallback((start, end) => {
+    setLoading(true);
+    api.get('/dashboard/kpis', { params: { startDate: start, endDate: end } })
+      .then(({ data }) => setKpis(data.data))
+      .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { fetchData(startDate, endDate); }, []);
+
+  const handlePreset = (label) => {
+    setPreset(label);
+    const p = PRESETS.find(x => x.label === label);
+    if (p && p.get) {
+      const { start, end } = p.get();
+      setStartDate(start);
+      setEndDate(end);
+      fetchData(start, end);
+    }
+  };
+
+  const handleApply = () => { fetchData(startDate, endDate); };
 
   if (loading) return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!kpis) return <p className="text-muted">Failed to load dashboard.</p>;
@@ -24,7 +53,46 @@ export default function DashboardPage() {
   const isDriver = user?.role === 'driver';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* ── Date Filter ─────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Period</label>
+          <select
+            value={preset}
+            onChange={(e) => handlePreset(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          >
+            {PRESETS.map(p => <option key={p.label} value={p.label}>{p.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">From</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => { setStartDate(e.target.value); setPreset('Custom'); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">To</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => { setEndDate(e.target.value); setPreset('Custom'); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          />
+        </div>
+        <button
+          onClick={handleApply}
+          className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors"
+        >
+          Apply
+        </button>
+      </div>
+
+      {/* ── Welcome Header ──────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-semibold text-primary">
           Welcome back, {user?.name?.split(' ')[0] || 'User'}
