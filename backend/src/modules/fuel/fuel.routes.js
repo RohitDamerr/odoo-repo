@@ -86,11 +86,11 @@ router.use(authenticate);
  *           example: 5
  */
 
-//  POST /api/v1/fuel
+//  POST /api/fuel
 
 /**
  * @swagger
- * /api/v1/fuel:
+ * /api/fuel:
  *   post:
  *     tags: [Fuel]
  *     summary: Log a fuel transaction
@@ -179,11 +179,11 @@ router.post(
     fuelController.create
 );
 
-//  GET /api/v1/fuel/efficiency/:vehicleId   (MUST be before /:id)
+//  GET /api/fuel/efficiency/:vehicleId   (MUST be before /:id)
 
 /**
  * @swagger
- * /api/v1/fuel/efficiency/{vehicleId}:
+ * /api/fuel/efficiency/{vehicleId}:
  *   get:
  *     tags: [Fuel]
  *     summary: Calculate fuel efficiency for a vehicle
@@ -242,11 +242,11 @@ router.post(
  */
 router.get('/efficiency/:vehicleId', fuelController.getEfficiency);
 
-//  GET /api/v1/fuel
+//  GET /api/fuel
 
 /**
  * @swagger
- * /api/v1/fuel:
+ * /api/fuel:
  *   get:
  *     tags: [Fuel]
  *     summary: List all fuel logs
@@ -322,11 +322,11 @@ router.get('/efficiency/:vehicleId', fuelController.getEfficiency);
  */
 router.get('/', fuelController.findAll);
 
-//  GET /api/v1/fuel/:id
+//  GET /api/fuel/:id
 
 /**
  * @swagger
- * /api/v1/fuel/{id}:
+ * /api/fuel/{id}:
  *   get:
  *     tags: [Fuel]
  *     summary: Get a single fuel log by ID
@@ -362,11 +362,11 @@ router.get('/', fuelController.findAll);
  */
 router.get('/:id', fuelController.findById);
 
-//  PATCH /api/v1/fuel/:id
+//  PATCH /api/fuel/:id
 
 /**
  * @swagger
- * /api/v1/fuel/{id}:
+ * /api/fuel/{id}:
  *   patch:
  *     tags: [Fuel]
  *     summary: Update a fuel log entry
@@ -437,11 +437,11 @@ router.patch(
     fuelController.update
 );
 
-//  DELETE /api/v1/fuel/:id
+//  DELETE /api/fuel/:id
 
 /**
  * @swagger
- * /api/v1/fuel/{id}:
+ * /api/fuel/{id}:
  *   delete:
  *     tags: [Fuel]
  *     summary: Delete a fuel log entry

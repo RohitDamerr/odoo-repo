@@ -4,15 +4,28 @@ const Trip = require('../../models/Trip');
 const ApiError = require('../../errors/ApiError');
 
 const create = async (data) => {
-    const vehicle = await Vehicle.findById(data.vehicle).lean();
+    const vehicle = await Vehicle.findById(data.vehicle);
     if (!vehicle) throw ApiError.notFound('Vehicle not found');
+
+    // Guard: cannot log fuel for a Retired vehicle
+    if (vehicle.status === 'Retired') {
+        throw ApiError.badRequest('Cannot log fuel for a retired vehicle.');
+    }
 
     if (data.trip) {
         const trip = await Trip.findById(data.trip).lean();
         if (!trip) throw ApiError.notFound('Trip not found');
     }
 
-    return await FuelLog.create(data);
+    const fuelLog = await FuelLog.create(data);
+
+    // Sync odometer forward if the fuel-log reading is higher
+    if (data.odometer != null && data.odometer > vehicle.odometer) {
+        vehicle.odometer = data.odometer;
+        await vehicle.save();
+    }
+
+    return fuelLog;
 };
 
 const findAll = async (query = {}) => {
@@ -60,8 +73,19 @@ const update = async (id, data) => {
     if (!fuelLog) throw ApiError.notFound('Fuel log not found');
 
     if (data.vehicle) {
-        const vehicle = await Vehicle.findById(data.vehicle).lean();
+        const vehicle = await Vehicle.findById(data.vehicle);
         if (!vehicle) throw ApiError.notFound('Vehicle not found');
+
+        // Guard: cannot reassign fuel log to a Retired vehicle
+        if (vehicle.status === 'Retired') {
+            throw ApiError.badRequest('Cannot reassign a fuel log to a retired vehicle.');
+        }
+
+        // Sync odometer forward if the new reading is higher
+        if (data.odometer != null && data.odometer > vehicle.odometer) {
+            vehicle.odometer = data.odometer;
+            await vehicle.save();
+        }
     }
     if (data.trip) {
         const trip = await Trip.findById(data.trip).lean();
