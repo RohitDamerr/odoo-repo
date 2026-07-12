@@ -1,5 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+
+const DATE_PRESETS = [
+  { label: 'This Month', get: () => { const d = new Date(); return { start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }; } },
+  { label: 'Last Month', get: () => { const d = new Date(); d.setMonth(d.getMonth()-1); return { start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }; } },
+  { label: 'This Quarter', get: () => { const d = new Date(); const q = Math.floor(d.getMonth() / 3); return { start: new Date(d.getFullYear(), q*3, 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), q*3+3, 0).toISOString().slice(0,10) }; } },
+  { label: 'This Year', get: () => { const d = new Date(); return { start: new Date(d.getFullYear(), 0, 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), 11, 31).toISOString().slice(0,10) }; } },
+  { label: 'Custom', get: null },
+];
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
@@ -9,24 +17,49 @@ export default function ReportsPage() {
   const [revenue, setRevenue] = useState([]);
   const [costByVeh, setCostByVeh] = useState([]);
   const [expenses, setExpenses] = useState(null);
+  const [preset, setPreset] = useState('This Month');
+  const [startDate, setStartDate] = useState(() => DATE_PRESETS[0].get().start);
+  const [endDate, setEndDate] = useState(() => DATE_PRESETS[0].get().end);
+  const [vehicleId, setVehicleId] = useState('');
+  const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
+    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+  }, []);
+
+  const fetchReports = useCallback((start, end, vid) => {
+    setLoading(true);
+    const params = { startDate: start, endDate: end };
+    const vParams = vid ? { ...params, vehicle: vid } : params;
     Promise.all([
       api.get('/reports/vehicles/roi'),
-      api.get('/reports/fuel/efficiency'),
-      api.get('/reports/vehicles/utilization'),
-      api.get('/reports/trips/revenue'),
-      api.get('/reports/maintenance/cost-by-vehicle'),
-      api.get('/reports/expenses/summary'),
+      api.get('/reports/fuel/efficiency', { params: vParams }),
+      api.get('/reports/vehicles/utilization', { params }),
+      api.get('/reports/trips/revenue', { params: vParams }),
+      api.get('/reports/maintenance/cost-by-vehicle', { params: vParams }),
+      api.get('/reports/expenses/summary', { params: vParams }),
     ]).then(([rRoi, rEff, rUtil, rRev, rCost, rExp]) => {
       setRoi(rRoi.data.data);
-      setEfficiency(rEff.data.data || []);
+      setEfficiency(rEff.data.data.vehicles || rEff.data.data || []);
       setUtilization(rUtil.data.data);
-      setRevenue(rRev.data.data || []);
-      setCostByVeh(rCost.data.data || []);
+      setRevenue(rRev.data.data.trips || rRev.data.data || []);
+      setCostByVeh(rCost.data.data.byVehicle || rCost.data.data || []);
       setExpenses(rExp.data.data);
     }).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { fetchReports(startDate, endDate, vehicleId); }, []);
+
+  const handlePreset = (label) => {
+    setPreset(label);
+    const p = DATE_PRESETS.find(x => x.label === label);
+    if (p && p.get) {
+      const { start, end } = p.get();
+      setStartDate(start);
+      setEndDate(end);
+      fetchReports(start, end, vehicleId);
+    }
+  };
 
   if (loading) return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
@@ -34,14 +67,48 @@ export default function ReportsPage() {
   const revenueMonths = groupByMonth(revenueTrips);
 
   const avgRoi = roi?.vehicles?.length ? +(roi.vehicles.reduce((s, v) => s + (v.roi || 0), 0) / roi.vehicles.length).toFixed(1) : 0;
-  const avgEfficiency = efficiency.length ? +(efficiency.reduce((s, e) => s + (e.efficiency || 0), 0) / efficiency.length).toFixed(1) : 0;
-  const fleetUtil = utilization?.utilizationRate != null ? utilization.utilizationRate : utilization?.rate || 0;
+  const efficiencyVehicles = Array.isArray(efficiency) ? efficiency : efficiency?.vehicles || [];
+  const avgEfficiency = efficiencyVehicles.length ? +(efficiencyVehicles.reduce((s, e) => s + (e.efficiency || 0), 0) / efficiencyVehicles.length).toFixed(1) : 0;
+  const fleetUtil = utilization?.utilizationPct != null ? utilization.utilizationPct : utilization?.rate || 0;
   const totalOpCost = (expenses?.totalAmount || 0) + (roi?.vehicles?.reduce((s, v) => s + v.totalOperationalCost, 0) || 0);
   const maxRevenue = Math.max(...revenueMonths.map((r) => r.total || 0), 1);
   const maxCost = Math.max(...(Array.isArray(costByVeh) ? costByVeh : []).map((c) => c.totalCost || 0), 1);
 
   return (
     <div className="space-y-8">
+      {/* ── Date Filter ─────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Period</label>
+          <select value={preset} onChange={(e) => handlePreset(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            {DATE_PRESETS.map(p => <option key={p.label} value={p.label}>{p.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">From</label>
+          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPreset('Custom'); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">To</label>
+          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPreset('Custom'); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Vehicle</label>
+          <select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary">
+            <option value="">All Vehicles</option>
+            {vehicles.map((v) => <option key={v._id} value={v._id}>{v.registrationNumber} — {v.name}</option>)}
+          </select>
+        </div>
+        <button onClick={() => fetchReports(startDate, endDate, vehicleId)}
+          className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors">
+          Apply
+        </button>
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-primary">Reports &amp; Analytics</h1>
@@ -93,13 +160,13 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {efficiency.length > 0 && (
+      {efficiencyVehicles.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200"><h2 className="text-lg font-semibold text-primary">Fuel Efficiency by Vehicle</h2></div>
           <table className="w-full text-left">
             <thead><tr className="bg-gray-50 text-xs uppercase tracking-wider text-muted"><th className="px-6 py-3">Vehicle</th><th className="px-6 py-3">Total Liters</th><th className="px-6 py-3">Distance (km)</th><th className="px-6 py-3">Efficiency</th></tr></thead>
             <tbody className="divide-y divide-gray-100 text-sm">
-              {efficiency.map((e) => (
+              {efficiencyVehicles.map((e) => (
                 <tr key={e.vehicleId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium">{e.registrationNumber} — {e.vehicleName}</td>
                   <td className="px-6 py-4">{e.totalLiters} L</td>

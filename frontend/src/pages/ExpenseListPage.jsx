@@ -26,6 +26,8 @@ export default function ExpenseListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [typeFilter, setTypeFilter] = useState('');
   const [vehicleId, setVehicleId] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
@@ -38,13 +40,17 @@ export default function ExpenseListPage() {
       const params = { page, limit: 15, sort: '-date' };
       if (typeFilter) params.type = typeFilter;
       if (vehicleId) params.vehicle = vehicleId;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
       const { data } = await api.get('/expenses', { params });
       setExpenses(data.data.expenses);
       setTotalPages(data.data.pagination?.totalPages || 1);
     } finally { setLoading(false); }
-  }, [page, typeFilter, vehicleId]);
+  }, [page, typeFilter, vehicleId, startDate, endDate]);
 
   useEffect(() => { fetch(); }, [fetch]);
+
+  const hasFilters = startDate || endDate || vehicleId || typeFilter;
 
   return (
     <div className="space-y-6">
@@ -70,14 +76,30 @@ export default function ExpenseListPage() {
         })}
       </div>
 
-      <FilterBar
-        filters={[{
-          key: 'vehicle', label: 'Vehicle', value: vehicleId,
-          options: vehicles.map((v) => ({ value: v._id, label: `${v.registrationNumber} — ${v.name}` })),
-          onChange: (v) => { setVehicleId(v); setPage(1); },
-        }]}
-        onClear={() => { setVehicleId(''); setPage(1); }}
-      />
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">From</label>
+          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">To</label>
+          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Vehicle</label>
+          <select value={vehicleId} onChange={(e) => { setVehicleId(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary">
+            <option value="">All Vehicles</option>
+            {vehicles.map((v) => <option key={v._id} value={v._id}>{v.registrationNumber} — {v.name}</option>)}
+          </select>
+        </div>
+        {hasFilters && (
+          <button onClick={() => { setStartDate(''); setEndDate(''); setVehicleId(''); setTypeFilter(''); setPage(1); }}
+            className="text-xs text-muted hover:text-primary underline">Clear filters</button>
+        )}
+      </div>
 
       <Table columns={COLUMNS} data={expenses} loading={loading} onRowClick={(row) => navigate(`/expenses/${row._id}`)} emptyMessage="No expenses found." />
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

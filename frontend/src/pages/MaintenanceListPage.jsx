@@ -40,6 +40,8 @@ export default function MaintenanceListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const [form, setForm] = useState(EMPTY);
   const [vehicles, setVehicles] = useState([]);
@@ -58,11 +60,13 @@ export default function MaintenanceListPage() {
       const params = { page, limit: 10, sort: '-createdAt' };
       if (statusFilter) params.status = statusFilter;
       if (typeFilter) params.type = typeFilter;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
       const { data } = await api.get('/maintenance', { params });
       setLogs(data.data.logs);
       setTotalPages(data.data.totalPages || 1);
     } finally { setLoading(false); }
-  }, [page, statusFilter, typeFilter]);
+  }, [page, statusFilter, typeFilter, startDate, endDate]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
@@ -130,8 +134,26 @@ export default function MaintenanceListPage() {
         </div>
 
         <div className="xl:col-span-2 bg-white rounded-xl border border-gray-200 border-l-4 border-l-primary overflow-hidden">
-          <div className="p-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-            <h2 className="text-lg font-semibold text-primary">Service Logs</h2>
+          <div className="p-4 border-b border-gray-200 space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-lg font-semibold text-primary">Service Logs</h2>
+            </div>
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-xs font-medium text-muted mb-1">From</label>
+                <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted mb-1">To</label>
+                <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+              </div>
+              {(startDate || endDate || statusFilter || typeFilter) && (
+                <button onClick={() => { setStartDate(''); setEndDate(''); setStatusFilter(''); setTypeFilter(''); setPage(1); }}
+                  className="text-xs text-muted hover:text-primary underline">Clear all</button>
+              )}
+            </div>
             <FilterBar
               filters={[
                 { key: 'status', label: 'Status', options: STATUS_OPTS, value: statusFilter, onChange: (v) => { setStatusFilter(v); setPage(1); } },

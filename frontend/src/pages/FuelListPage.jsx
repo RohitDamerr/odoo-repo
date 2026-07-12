@@ -22,6 +22,8 @@ export default function FuelListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [vehicleId, setVehicleId] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
@@ -33,13 +35,17 @@ export default function FuelListPage() {
     try {
       const params = { page, limit: 15, sort: '-date' };
       if (vehicleId) params.vehicle = vehicleId;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
       const { data } = await api.get('/fuel', { params });
       setLogs(data.data.fuelLogs);
       setTotalPages(data.data.pagination?.totalPages || 1);
     } finally { setLoading(false); }
-  }, [page, vehicleId]);
+  }, [page, vehicleId, startDate, endDate]);
 
   useEffect(() => { fetch(); }, [fetch]);
+
+  const hasFilters = startDate || endDate || vehicleId;
 
   return (
     <div className="space-y-6">
@@ -53,14 +59,30 @@ export default function FuelListPage() {
         </Button>
       </div>
 
-      <FilterBar
-        filters={[{
-          key: 'vehicle', label: 'Vehicle', value: vehicleId,
-          options: vehicles.map((v) => ({ value: v._id, label: `${v.registrationNumber} — ${v.name}` })),
-          onChange: (v) => { setVehicleId(v); setPage(1); },
-        }]}
-        onClear={() => { setVehicleId(''); setPage(1); }}
-      />
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">From</label>
+          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">To</label>
+          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Vehicle</label>
+          <select value={vehicleId} onChange={(e) => { setVehicleId(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary">
+            <option value="">All Vehicles</option>
+            {vehicles.map((v) => <option key={v._id} value={v._id}>{v.registrationNumber} — {v.name}</option>)}
+          </select>
+        </div>
+        {hasFilters && (
+          <button onClick={() => { setStartDate(''); setEndDate(''); setVehicleId(''); setPage(1); }}
+            className="text-xs text-muted hover:text-primary underline">Clear filters</button>
+        )}
+      </div>
 
       <Table columns={COLUMNS} data={logs} loading={loading} onRowClick={(row) => navigate(`/fuel/${row._id}`)} emptyMessage="No fuel logs found." />
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
