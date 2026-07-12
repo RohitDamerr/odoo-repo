@@ -15,7 +15,7 @@ const expenseSchema = new mongoose.Schema(
         type: {
             type: String,
             required: [true, 'Expense type is required'],
-            enum: ['fuel', 'toll', 'maintenance', 'insurance', 'other']
+            enum: ['fuel', 'toll', 'maintenance', 'parking', 'repair', 'miscellaneous']
         },
         amount: {
             type: Number,
