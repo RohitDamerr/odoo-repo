@@ -107,6 +107,10 @@ export default function ReportsPage() {
           className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors">
           Apply
         </button>
+        <a href={`/api/reports/vehicles/overview?startDate=${startDate}&endDate=${endDate}&format=csv`}
+          className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1">
+          <span className="material-symbols-outlined text-lg">download</span>Export CSV
+        </a>
       </div>
 
       <div className="flex items-center justify-between">
