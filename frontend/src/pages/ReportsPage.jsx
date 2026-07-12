@@ -30,12 +30,15 @@ export default function ReportsPage() {
 
   if (loading) return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
+  const revenueTrips = Array.isArray(revenue) ? revenue : (revenue?.trips || []);
+  const revenueMonths = groupByMonth(revenueTrips);
+
   const avgRoi = roi?.vehicles?.length ? +(roi.vehicles.reduce((s, v) => s + (v.roi || 0), 0) / roi.vehicles.length).toFixed(1) : 0;
   const avgEfficiency = efficiency.length ? +(efficiency.reduce((s, e) => s + (e.efficiency || 0), 0) / efficiency.length).toFixed(1) : 0;
   const fleetUtil = utilization?.utilizationRate != null ? utilization.utilizationRate : utilization?.rate || 0;
   const totalOpCost = (expenses?.totalAmount || 0) + (roi?.vehicles?.reduce((s, v) => s + v.totalOperationalCost, 0) || 0);
-  const maxRevenue = Math.max(...revenue.map((r) => r.totalRevenue || 0), 1);
-  const maxCost = Math.max(...costByVeh.map((c) => c.totalCost || 0), 1);
+  const maxRevenue = Math.max(...revenueMonths.map((r) => r.total || 0), 1);
+  const maxCost = Math.max(...(Array.isArray(costByVeh) ? costByVeh : []).map((c) => c.totalCost || 0), 1);
 
   return (
     <div className="space-y-8">
@@ -60,21 +63,21 @@ export default function ReportsPage() {
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
               {[0, 1, 2, 3].map((i) => <div key={i} className="border-b border-gray-100 w-full" />)}
             </div>
-            {revenue.slice(0, 12).map((r, i) => (
-              <div key={i} className="flex-1 bg-secondary/70 hover:bg-secondary transition-colors rounded-t-sm relative z-10 group" style={{ height: `${(r.totalRevenue / maxRevenue) * 100}%` }}>
-                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-0.5 px-1.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">₹{r.totalRevenue?.toLocaleString()}</div>
+            {revenueMonths.slice(-12).map((r, i) => (
+              <div key={i} className="flex-1 bg-secondary/70 hover:bg-secondary transition-colors rounded-t-sm relative z-10 group" style={{ height: r.total > 0 ? `${(r.total / maxRevenue) * 100}%` : '4px' }}>
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-0.5 px-1.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">₹{r.total?.toLocaleString()}</div>
               </div>
             ))}
           </div>
           <div className="flex justify-between mt-3 px-1 text-[10px] text-muted">
-            {revenue.slice(0, 12).map((r, i) => <span key={i}>{r.month || r._id || i + 1}</span>)}
+            {revenueMonths.slice(-12).map((r, i) => <span key={i}>{r.label}</span>)}
           </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-primary mb-6">Top Costliest Vehicles</h2>
           <div className="space-y-5">
-            {costByVeh.slice(0, 4).map((v) => (
+            {(Array.isArray(costByVeh) ? costByVeh : []).slice(0, 4).map((v) => (
               <div key={v.vehicleId}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-medium">{v.registrationNumber}</span>
@@ -85,7 +88,7 @@ export default function ReportsPage() {
                 </div>
               </div>
             ))}
-            {costByVeh.length === 0 && <p className="text-sm text-muted">No data</p>}
+            {(!Array.isArray(costByVeh) || costByVeh.length === 0) && <p className="text-sm text-muted">No data</p>}
           </div>
         </div>
       </div>
@@ -128,6 +131,18 @@ export default function ReportsPage() {
       )}
     </div>
   );
+}
+
+function groupByMonth(trips) {
+  const months = {};
+  const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  for (const t of trips) {
+    const d = new Date(t.completedAt || t.date || t.createdAt);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!months[key]) months[key] = { label: names[d.getMonth()], total: 0 };
+    months[key].total += t.revenue || 0;
+  }
+  return Object.values(months);
 }
 
 function KpiCard({ title, value, unit, trend, up }) {

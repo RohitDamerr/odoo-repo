@@ -23,7 +23,7 @@ export default function TripFormPage() {
     ]).then(([vRes, dRes]) => {
       setVehicles(vRes.data.data.vehicles || []);
       setDrivers(dRes.data.data.drivers || []);
-    });
+    }).catch(() => {});
   }, []);
 
   const handleChange = (e) => {

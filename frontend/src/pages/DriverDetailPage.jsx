@@ -104,7 +104,7 @@ export default function DriverDetailPage() {
           <Field label="Expiry Date" value={
             <span className={isExpired ? 'text-error font-semibold' : ''}>
               {driver.licenseExpiryDate ? new Date(driver.licenseExpiryDate).toLocaleDateString() : '—'}
-              {isExpired ? <span className="ml-2 text-xs bg-error text-white px-1 py-0.5 rounded font-bold">EXPIRED</span> : <span className="ml-2 text-xs text-green-600 font-medium">✓ Valid</span>}
+              {isExpired ? <span className="ml-2 text-xs bg-error text-white px-1 py-0.5 rounded font-bold">EXPIRED</span> : <span className="ml-2 text-xs text-green-600 font-medium">Valid</span>}
             </span>
           } />
         </div>

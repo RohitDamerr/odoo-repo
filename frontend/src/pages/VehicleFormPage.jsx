@@ -45,7 +45,7 @@ export default function VehicleFormPage() {
         registrationExpiryDate: v.registrationExpiryDate ? v.registrationExpiryDate.slice(0, 10) : '',
         status: v.status || 'Available',
       });
-    }).finally(() => setLoading(false));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
   const handleChange = (e) => {

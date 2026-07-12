@@ -29,7 +29,7 @@ export default function ExpenseListPage() {
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
-    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || [])).catch(() => {});
   }, []);
 
   const fetch = useCallback(async () => {

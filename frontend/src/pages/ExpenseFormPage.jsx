@@ -19,7 +19,7 @@ export default function ExpenseFormPage() {
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
-    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || [])).catch(() => {});
     if (id) {
       api.get(`/expenses/${id}`).then(({ data }) => {
         const e = data.data.expense;
