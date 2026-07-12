@@ -27,4 +27,25 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Fetch a file download via axios (includes auth token) and trigger
+ * a browser download. Use this for authenticated CSV/Excel/PDF exports.
+ *
+ * @param {string} url   — API path relative to baseURL (e.g. '/reports/fuel/summary')
+ * @param {object} params — Query params (format, startDate, endDate, vehicle, etc.)
+ * @param {string} filename — Suggested download filename
+ */
+export async function downloadFile(url, params, filename) {
+  const res = await api.get(url, { params, responseType: 'blob' });
+  const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' });
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(href);
+}
+
 export default api;
