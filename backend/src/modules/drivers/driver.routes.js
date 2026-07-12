@@ -72,11 +72,11 @@ router.use(authenticate);
  *           example: 3
  */
 
-//  POST /api/v1/drivers
+//  POST /api/drivers
 
 /**
  * @swagger
- * /api/v1/drivers:
+ * /api/drivers:
  *   post:
  *     tags: [Drivers]
  *     summary: Register a new driver
@@ -175,11 +175,11 @@ router.post(
     driverController.create
 );
 
-//  GET /api/v1/drivers
+//  GET /api/drivers
 
 /**
  * @swagger
- * /api/v1/drivers:
+ * /api/drivers:
  *   get:
  *     tags: [Drivers]
  *     summary: List all drivers
@@ -255,11 +255,11 @@ router.post(
  */
 router.get('/', driverController.findAll);
 
-//  GET /api/v1/drivers/:id
+//  GET /api/drivers/:id
 
 /**
  * @swagger
- * /api/v1/drivers/{id}:
+ * /api/drivers/{id}:
  *   get:
  *     tags: [Drivers]
  *     summary: Get a single driver by ID
@@ -304,18 +304,18 @@ router.get('/', driverController.findAll);
  */
 router.get('/:id', driverController.findById);
 
-//  PATCH /api/v1/drivers/:id
+//  PATCH /api/drivers/:id
 
 /**
  * @swagger
- * /api/v1/drivers/{id}:
+ * /api/drivers/{id}:
  *   patch:
  *     tags: [Drivers]
  *     summary: Update driver information
  *     description: >
  *       Updates driver fields like name, license details, or safety score.
  *       **Status cannot be changed through this endpoint** — use
- *       `PATCH /api/v1/drivers/{id}/status` for status changes.
+ *       `PATCH /api/drivers/{id}/status` for status changes.
  *       Requires admin or fleet_manager role.
  *     security:
  *       - bearerAuth: []
@@ -410,11 +410,11 @@ router.patch(
     driverController.update
 );
 
-//  DELETE /api/v1/drivers/:id
+//  DELETE /api/drivers/:id
 
 /**
  * @swagger
- * /api/v1/drivers/{id}:
+ * /api/drivers/{id}:
  *   delete:
  *     tags: [Drivers]
  *     summary: Delete a driver
@@ -473,11 +473,11 @@ router.patch(
  */
 router.delete('/:id', authorize('admin'), driverController.remove);
 
-//  PATCH /api/v1/drivers/:id/status
+//  PATCH /api/drivers/:id/status
 
 /**
  * @swagger
- * /api/v1/drivers/{id}/status:
+ * /api/drivers/{id}/status:
  *   patch:
  *     tags: [Drivers]
  *     summary: Change driver status manually
