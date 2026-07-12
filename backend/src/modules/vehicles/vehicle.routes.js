@@ -44,6 +44,16 @@ router.use(authenticate);
  *         acquisitionCost:
  *           type: number
  *           example: 85000
+ *         fuelType:
+ *           type: string
+ *           enum: [Diesel, Electric, Hybrid, Gasoline]
+ *           nullable: true
+ *           example: Diesel
+ *         registrationExpiryDate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *           example: "2028-06-15"
  *         status:
  *           type: string
  *           enum: [Available, On Trip, In Shop, Retired]
@@ -240,6 +250,16 @@ router.get('/', validate(listVehiclesQuerySchema, 'query'), vehicleController.li
  *                 type: string
  *                 enum: [Available, On Trip, In Shop, Retired]
  *                 default: Available
+ *               fuelType:
+ *                 type: string
+ *                 enum: [Diesel, Electric, Hybrid, Gasoline]
+ *                 nullable: true
+ *                 example: Diesel
+ *               registrationExpiryDate:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 example: "2028-06-15"
  *     responses:
  *       201:
  *         description: Vehicle created successfully
