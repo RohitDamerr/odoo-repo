@@ -18,6 +18,8 @@ const ApiError = require('./errors/ApiError');
 const authRoutes = require('./modules/auth/auth.routes');
 const driverRoutes = require('./modules/drivers/driver.routes');
 const fuelRoutes = require('./modules/fuel/fuel.routes');
+const expenseRoutes = require('./modules/expenses/expense.routes');
+const tripRoutes = require('./modules/trips/trip.routes');
 const vehicleRoutes = require('./modules/vehicles/vehicle.routes');
 const maintenanceRoutes = require('./modules/maintenance/maintenance.routes');
 
@@ -80,6 +82,8 @@ app.get('/api/docs.json', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/fuel', fuelRoutes);
+app.use('/api/v1/expenses', expenseRoutes);
+app.use('/api/v1/trips', tripRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 
