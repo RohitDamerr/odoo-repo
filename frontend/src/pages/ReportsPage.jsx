@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
+import api, { downloadFile } from '../services/api';
 
 const DATE_PRESETS = [
   { label: 'This Month', get: () => { const d = new Date(); return { start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10), end: new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }; } },
@@ -49,6 +49,23 @@ export default function ReportsPage() {
   }, []);
 
   useEffect(() => { fetchReports(startDate, endDate, vehicleId); }, []);
+
+  const handleExport = (reportPath, format) => {
+    const params = { format };
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    if (vehicleId) params.vehicle = vehicleId;
+    const name = reportPath.replace(/\/|\./g, '-');
+    downloadFile(`/reports/${reportPath}`, params, `${name}.${format}`);
+  };
+
+  const ExportBtns = ({ reportPath }) => (
+    <span className="inline-flex items-center gap-1 ml-3">
+      <button onClick={() => handleExport(reportPath, 'csv')} className="px-1.5 py-0.5 text-[10px] font-medium rounded border border-gray-300 text-gray-500 hover:bg-gray-100">CSV</button>
+      <button onClick={() => handleExport(reportPath, 'excel')} className="px-1.5 py-0.5 text-[10px] font-medium rounded border border-gray-300 text-gray-500 hover:bg-gray-100">XLSX</button>
+      <button onClick={() => handleExport(reportPath, 'pdf')} className="px-1.5 py-0.5 text-[10px] font-medium rounded border border-gray-300 text-gray-500 hover:bg-gray-100">PDF</button>
+    </span>
+  );
 
   const handlePreset = (label) => {
     setPreset(label);
@@ -107,10 +124,10 @@ export default function ReportsPage() {
           className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition-colors">
           Apply
         </button>
-        <a href={`/api/reports/vehicles/overview?startDate=${startDate}&endDate=${endDate}&format=csv`}
+        <button onClick={() => handleExport('vehicles/overview', 'csv')}
           className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1">
           <span className="material-symbols-outlined text-lg">download</span>Export CSV
-        </a>
+        </button>
       </div>
 
       <div className="flex items-center justify-between">
@@ -129,7 +146,7 @@ export default function ReportsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-primary mb-6">Monthly Revenue</h2>
+          <div className="flex items-center justify-between mb-6"><h2 className="text-lg font-semibold text-primary">Monthly Revenue</h2><ExportBtns reportPath="trips/revenue" /></div>
           <div className="h-[280px] flex items-end gap-2 relative">
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
               {[0, 1, 2, 3].map((i) => <div key={i} className="border-b border-gray-100 w-full" />)}
@@ -146,7 +163,7 @@ export default function ReportsPage() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-primary mb-6">Top Costliest Vehicles</h2>
+          <div className="flex items-center justify-between mb-6"><h2 className="text-lg font-semibold text-primary">Top Costliest Vehicles</h2><ExportBtns reportPath="maintenance/cost-by-vehicle" /></div>
           <div className="space-y-5">
             {(Array.isArray(costByVeh) ? costByVeh : []).slice(0, 4).map((v) => (
               <div key={v.vehicleId}>
@@ -166,7 +183,7 @@ export default function ReportsPage() {
 
       {efficiencyVehicles.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200"><h2 className="text-lg font-semibold text-primary">Fuel Efficiency by Vehicle</h2></div>
+          <div className="p-6 border-b border-gray-200 flex items-center justify-between"><h2 className="text-lg font-semibold text-primary">Fuel Efficiency by Vehicle</h2><ExportBtns reportPath="fuel/efficiency" /></div>
           <table className="w-full text-left">
             <thead><tr className="bg-gray-50 text-xs uppercase tracking-wider text-muted"><th className="px-6 py-3">Vehicle</th><th className="px-6 py-3">Total Liters</th><th className="px-6 py-3">Distance (km)</th><th className="px-6 py-3">Efficiency</th></tr></thead>
             <tbody className="divide-y divide-gray-100 text-sm">
@@ -185,7 +202,7 @@ export default function ReportsPage() {
 
       {expenses?.byType?.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200"><h2 className="text-lg font-semibold text-primary">Expense Breakdown</h2></div>
+          <div className="p-6 border-b border-gray-200 flex items-center justify-between"><h2 className="text-lg font-semibold text-primary">Expense Breakdown</h2><ExportBtns reportPath="expenses/summary" /></div>
           <table className="w-full text-left">
             <thead><tr className="bg-gray-50 text-xs uppercase tracking-wider text-muted"><th className="px-6 py-3">Type</th><th className="px-6 py-3">Amount</th><th className="px-6 py-3">Count</th></tr></thead>
             <tbody className="divide-y divide-gray-100 text-sm">
