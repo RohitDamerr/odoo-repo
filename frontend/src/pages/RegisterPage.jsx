@@ -143,6 +143,7 @@ export default function RegisterPage() {
                 >
                   <option value="admin">Admin</option>
                   <option value="fleet_manager">Fleet Manager</option>
+                  <option value="dispatcher">Dispatcher</option>
                   <option value="safety_officer">Safety Officer</option>
                   <option value="financial_analyst">Financial Analyst</option>
                   <option value="driver">Driver</option>

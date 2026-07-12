@@ -11,6 +11,7 @@ import TripDetailPage from './pages/TripDetailPage';
 import DriverListPage from './pages/DriverListPage';
 import DriverFormPage from './pages/DriverFormPage';
 import DriverDetailPage from './pages/DriverDetailPage';
+import DashboardPage from './pages/DashboardPage';
 
 export default function App() {
   return (
@@ -18,7 +19,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedLayout />}>
-        <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/vehicles" element={<VehicleListPage />} />
         <Route path="/vehicles/new" element={<VehicleFormPage />} />
         <Route path="/vehicles/:id" element={<VehicleDetailPage />} />

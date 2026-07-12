@@ -18,7 +18,7 @@ export default function TripDetailPage() {
   const [error, setError] = useState(null);
 
   const fetchTrip = () => {
-    api.get(`/api/trips/${id}`).then(({ data }) => {
+    api.get(`/trips/${id}`).then(({ data }) => {
       setTrip(data.data.trip);
     }).catch((err) => {
       setError(err.response?.data?.message || 'Failed to load trip');
@@ -31,7 +31,7 @@ export default function TripDetailPage() {
     setActionLoading(true);
     setError(null);
     try {
-      await api.post(`/api/trips/${id}/dispatch`);
+      await api.post(`/trips/${id}/dispatch`);
       fetchTrip();
       setActionLoading(false);
     } catch (err) {
@@ -48,7 +48,7 @@ export default function TripDetailPage() {
     setActionLoading(true);
     setError(null);
     try {
-      await api.post(`/api/trips/${id}/complete`, {
+      await api.post(`/trips/${id}/complete`, {
         actualOdometer: Number(completeForm.actualOdometer),
         fuelConsumed: completeForm.fuelConsumed ? Number(completeForm.fuelConsumed) : null,
       });
@@ -65,7 +65,7 @@ export default function TripDetailPage() {
     setActionLoading(true);
     setError(null);
     try {
-      await api.post(`/api/trips/${id}/cancel`);
+      await api.post(`/trips/${id}/cancel`);
       setShowCancel(false);
       fetchTrip();
       setActionLoading(false);

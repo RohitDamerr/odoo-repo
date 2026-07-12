@@ -14,7 +14,7 @@ export default function VehicleDetailPage() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    api.get(`/api/vehicles/${id}`).then(({ data }) => {
+    api.get(`/vehicles/${id}`).then(({ data }) => {
       setVehicle(data.data.vehicle);
     }).finally(() => setLoading(false));
   }, [id]);
@@ -22,7 +22,7 @@ export default function VehicleDetailPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/api/vehicles/${id}`);
+      await api.delete(`/vehicles/${id}`);
       navigate('/vehicles');
     } finally {
       setDeleting(false);

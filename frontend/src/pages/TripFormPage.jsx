@@ -18,8 +18,8 @@ export default function TripFormPage() {
 
   useEffect(() => {
     Promise.all([
-      api.get('/api/vehicles', { params: { status: 'Available', limit: 100 } }),
-      api.get('/api/drivers', { params: { status: 'Available', limit: 100 } }),
+      api.get('/vehicles', { params: { status: 'Available', limit: 100 } }),
+      api.get('/drivers', { params: { status: 'Available', limit: 100 } }),
     ]).then(([vRes, dRes]) => {
       setVehicles(vRes.data.data.vehicles || []);
       setDrivers(dRes.data.data.drivers || []);
@@ -58,7 +58,7 @@ export default function TripFormPage() {
 
     setSaving(true);
     try {
-      await api.post('/api/trips', {
+      await api.post('/trips', {
         ...form,
         cargoWeight: Number(form.cargoWeight),
         plannedDistance: Number(form.plannedDistance),

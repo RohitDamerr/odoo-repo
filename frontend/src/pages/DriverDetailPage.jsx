@@ -20,7 +20,7 @@ export default function DriverDetailPage() {
   const [error, setError] = useState(null);
 
   const fetchDriver = () => {
-    api.get(`/api/drivers/${id}`).then(({ data }) => {
+    api.get(`/drivers/${id}`).then(({ data }) => {
       setDriver(data.data.driver);
       setNewStatus(data.data.driver.status);
     }).catch((err) => setError(err.response?.data?.message || 'Failed to load driver'))
@@ -32,14 +32,14 @@ export default function DriverDetailPage() {
   const handleStatusUpdate = async () => {
     if (!newStatus || newStatus === driver.status) return;
     setStatusLoading(true); setError(null);
-    try { await api.patch(`/api/drivers/${id}/status`, { status: newStatus }); fetchDriver(); }
+    try { await api.patch(`/drivers/${id}/status`, { status: newStatus }); fetchDriver(); }
     catch (err) { setError(err.response?.data?.message || 'Status update failed'); }
     finally { setStatusLoading(false); }
   };
 
   const handleDelete = async () => {
     setDeleting(true);
-    try { await api.delete(`/api/drivers/${id}`); navigate('/drivers'); }
+    try { await api.delete(`/drivers/${id}`); navigate('/drivers'); }
     catch (err) { setError(err.response?.data?.message || 'Delete failed'); setDeleting(false); setShowDelete(false); }
   };
 

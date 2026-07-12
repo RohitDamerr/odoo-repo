@@ -24,10 +24,10 @@ const registerSchema = Joi.object({
     }),
 
     role: Joi.string()
-        .valid('admin', 'fleet_manager', 'driver', 'safety_officer', 'financial_analyst')
+        .valid('admin', 'fleet_manager', 'dispatcher', 'driver', 'safety_officer', 'financial_analyst')
         .default('driver')
         .messages({
-            'any.only': 'Role must be one of: admin, fleet_manager, driver, safety_officer, financial_analyst'
+            'any.only': 'Role must be one of: admin, fleet_manager, dispatcher, driver, safety_officer, financial_analyst'
         })
 });
 
