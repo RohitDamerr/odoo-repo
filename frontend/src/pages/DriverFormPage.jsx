@@ -23,7 +23,7 @@ export default function DriverFormPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/api/drivers/${id}`).then(({ data }) => {
+    api.get(`/drivers/${id}`).then(({ data }) => {
       const d = data.data.driver;
       setForm({
         name: d.name || '', licenseNumber: d.licenseNumber || '', licenseCategory: d.licenseCategory || '',
@@ -56,8 +56,8 @@ export default function DriverFormPage() {
     setSaving(true);
     try {
       const payload = { ...form, safetyScore: Number(form.safetyScore) };
-      if (isEdit) { delete payload.status; await api.patch(`/api/drivers/${id}`, payload); }
-      else { delete payload.status; await api.post('/api/drivers', payload); }
+      if (isEdit) { delete payload.status; await api.patch(`/drivers/${id}`, payload); }
+      else { delete payload.status; await api.post('/drivers', payload); }
       navigate('/drivers');
     } catch (err) {
       setErrors({ server: err.response?.data?.message || 'Failed to save driver' });

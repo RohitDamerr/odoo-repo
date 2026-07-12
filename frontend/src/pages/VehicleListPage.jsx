@@ -39,7 +39,7 @@ export default function VehicleListPage() {
       if (status) params.status = status;
       if (type) params.type = type;
 
-      const { data } = await api.get('/api/vehicles', { params });
+      const { data } = await api.get('/vehicles', { params });
       setVehicles(data.data.vehicles);
       setTotalPages(data.data.totalPages || 1);
     } catch (err) {

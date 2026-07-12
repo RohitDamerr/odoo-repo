@@ -15,16 +15,18 @@ const NAV_ITEMS = [
 const RESTRICTED_ROLES = {
   financial_analyst: ['/dashboard', '/fuel', '/expenses', '/reports'],
   safety_officer: ['/dashboard', '/vehicles', '/maintenance', '/reports'],
+  dispatcher: ['/dashboard', '/vehicles', '/drivers', '/trips'],
 };
 
 export default function Sidebar() {
-  const { user, logout, isFinancialAnalyst, isSafetyOfficer } = useAuth();
+  const { user, logout, isFinancialAnalyst, isSafetyOfficer, isDispatcher } = useAuth();
   const location = useLocation();
 
   const visibleItems = NAV_ITEMS.filter((item) => {
-    if (!item.roles && !isFinancialAnalyst && !isSafetyOfficer) return true;
+    if (!item.roles && !isFinancialAnalyst && !isSafetyOfficer && !isDispatcher) return true;
     if (isFinancialAnalyst) return RESTRICTED_ROLES.financial_analyst.includes(item.to);
     if (isSafetyOfficer) return RESTRICTED_ROLES.safety_officer.includes(item.to);
+    if (isDispatcher) return RESTRICTED_ROLES.dispatcher.includes(item.to);
     return true;
   });
 

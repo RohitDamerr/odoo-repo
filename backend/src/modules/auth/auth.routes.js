@@ -34,7 +34,7 @@ const router = Router();
  *           example: admin@transitops.com
  *         role:
  *           type: string
- *           enum: [admin, fleet_manager, driver, safety_officer, financial_analyst]
+ *           enum: [admin, fleet_manager, dispatcher, driver, safety_officer, financial_analyst]
  *           example: admin
  *         createdAt:
  *           type: string
@@ -109,7 +109,7 @@ const router = Router();
  *                 example: admin123
  *               role:
  *                 type: string
- *                 enum: [admin, fleet_manager, driver, safety_officer, financial_analyst]
+ *                 enum: [admin, fleet_manager, dispatcher, driver, safety_officer, financial_analyst]
  *                 default: driver
  *                 example: admin
  *     responses:

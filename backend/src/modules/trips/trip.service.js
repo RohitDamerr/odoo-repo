@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Trip = require('../../models/Trip');
 const Vehicle = require('../../models/Vehicle');
 const Driver = require('../../models/Driver');
@@ -135,24 +134,12 @@ const dispatch = async (id) => {
         );
     }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    await Vehicle.findByIdAndUpdate(vehicle._id, { status: 'On Trip' });
+    await Driver.findByIdAndUpdate(driver._id, { status: 'On Trip' });
 
-    try {
-        await Vehicle.findByIdAndUpdate(vehicle._id, { status: 'On Trip' }, { session });
-        await Driver.findByIdAndUpdate(driver._id, { status: 'On Trip' }, { session });
-
-        trip.status = 'Dispatched';
-        trip.dispatchedAt = new Date();
-        await trip.save({ session });
-
-        await session.commitTransaction();
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
-    }
+    trip.status = 'Dispatched';
+    trip.dispatchedAt = new Date();
+    await trip.save();
 
     return await Trip.findById(id)
         .populate('vehicle', 'name registrationNumber type status')
@@ -170,26 +157,19 @@ const complete = async (id, { actualOdometer, fuelConsumed }) => {
         throw ApiError.badRequest(`Cannot complete a trip with status '${trip.status}'. Only Dispatched trips can be completed.`);
     }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-        await Vehicle.findByIdAndUpdate(trip.vehicle._id, { status: 'Available' }, { session });
-        await Driver.findByIdAndUpdate(trip.driver._id, { status: 'Available' }, { session });
-
-        trip.status = 'Completed';
-        trip.actualOdometer = actualOdometer;
-        trip.completedAt = new Date();
-        if (fuelConsumed != null) trip.fuelConsumed = fuelConsumed;
-        await trip.save({ session });
-
-        await session.commitTransaction();
-    } catch (err) {
-        await session.abortTransaction();
-        throw err;
-    } finally {
-        session.endSession();
+    const vehicleUpdate = { status: 'Available' };
+    if (actualOdometer != null && actualOdometer > trip.vehicle.odometer) {
+        vehicleUpdate.odometer = actualOdometer;
     }
+
+    await Vehicle.findByIdAndUpdate(trip.vehicle._id, vehicleUpdate);
+    await Driver.findByIdAndUpdate(trip.driver._id, { status: 'Available' });
+
+    trip.status = 'Completed';
+    trip.actualOdometer = actualOdometer;
+    trip.completedAt = new Date();
+    if (fuelConsumed != null) trip.fuelConsumed = fuelConsumed;
+    await trip.save();
 
     return await Trip.findById(id)
         .populate('vehicle', 'name registrationNumber type status')
@@ -210,30 +190,13 @@ const cancel = async (id) => {
     const wasDispatched = trip.status === 'Dispatched';
 
     if (wasDispatched) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
-        try {
-            await Vehicle.findByIdAndUpdate(trip.vehicle._id, { status: 'Available' }, { session });
-            await Driver.findByIdAndUpdate(trip.driver._id, { status: 'Available' }, { session });
-
-            trip.status = 'Cancelled';
-            trip.cancelledAt = new Date();
-            await trip.save({ session });
-
-            await session.commitTransaction();
-        } catch (err) {
-            await session.abortTransaction();
-            throw err;
-        } finally {
-            session.endSession();
-        }
-    } else {
-        // Draft → Cancelled (no vehicle/driver changes)
-        trip.status = 'Cancelled';
-        trip.cancelledAt = new Date();
-        await trip.save();
+        await Vehicle.findByIdAndUpdate(trip.vehicle._id, { status: 'Available' });
+        await Driver.findByIdAndUpdate(trip.driver._id, { status: 'Available' });
     }
+
+    trip.status = 'Cancelled';
+    trip.cancelledAt = new Date();
+    await trip.save();
 
     return await Trip.findById(id)
         .populate('vehicle', 'name registrationNumber type status')

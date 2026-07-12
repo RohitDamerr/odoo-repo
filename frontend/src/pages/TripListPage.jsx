@@ -52,7 +52,7 @@ export default function TripListPage() {
     try {
       const params = { page, limit: 10, sort: '-createdAt' };
       if (statusFilter) params.status = statusFilter;
-      const { data } = await api.get('/api/trips', { params });
+      const { data } = await api.get('/trips', { params });
       setTrips(data.data.trips);
       setTotalPages(data.data.pagination?.totalPages || 1);
     } finally {

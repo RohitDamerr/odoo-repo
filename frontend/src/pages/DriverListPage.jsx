@@ -69,7 +69,7 @@ export default function DriverListPage() {
       const params = { page, limit: 20, sort: '-createdAt' };
       if (search) params.search = search;
       if (statusFilter) params.status = statusFilter;
-      const { data } = await api.get('/api/drivers', { params });
+      const { data } = await api.get('/drivers', { params });
       setDrivers(data.data.drivers);
       setTotalPages(data.data.pagination?.totalPages || 1);
     } finally {
