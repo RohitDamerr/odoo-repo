@@ -34,6 +34,15 @@ const vehicleSchema = new mongoose.Schema(
             required: [true, 'Acquisition cost is required'],
             min: 0
         },
+        fuelType: {
+            type: String,
+            enum: ['Diesel', 'Electric', 'Hybrid', 'Gasoline', null],
+            default: null
+        },
+        registrationExpiryDate: {
+            type: Date,
+            default: null
+        },
         status: {
             type: String,
             enum: ['Available', 'On Trip', 'In Shop', 'Retired'],

@@ -2,6 +2,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedLayout from './components/layout/ProtectedLayout';
+import VehicleListPage from './pages/VehicleListPage';
+import VehicleFormPage from './pages/VehicleFormPage';
+import VehicleDetailPage from './pages/VehicleDetailPage';
+import TripListPage from './pages/TripListPage';
+import TripFormPage from './pages/TripFormPage';
+import TripDetailPage from './pages/TripDetailPage';
 
 export default function App() {
   return (
@@ -10,9 +16,14 @@ export default function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
-        <Route path="/vehicles" element={<Placeholder title="Vehicles" />} />
+        <Route path="/vehicles" element={<VehicleListPage />} />
+        <Route path="/vehicles/new" element={<VehicleFormPage />} />
+        <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
+        <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
         <Route path="/drivers" element={<Placeholder title="Drivers" />} />
-        <Route path="/trips" element={<Placeholder title="Trips" />} />
+        <Route path="/trips" element={<TripListPage />} />
+        <Route path="/trips/new" element={<TripFormPage />} />
+        <Route path="/trips/:id" element={<TripDetailPage />} />
         <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
         <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
         <Route path="/expenses" element={<Placeholder title="Expenses" />} />

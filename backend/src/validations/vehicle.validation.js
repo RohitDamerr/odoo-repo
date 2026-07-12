@@ -36,6 +36,14 @@ const createVehicleSchema = Joi.object({
         'any.required': 'Acquisition cost is required'
     }),
 
+    fuelType: Joi.string().valid('Diesel', 'Electric', 'Hybrid', 'Gasoline').allow(null).default(null).messages({
+        'any.only': 'Fuel type must be one of: Diesel, Electric, Hybrid, Gasoline'
+    }),
+
+    registrationExpiryDate: Joi.date().iso().allow(null).default(null).messages({
+        'date.format': 'Registration expiry date must be in ISO format (YYYY-MM-DD)'
+    }),
+
     status: Joi.string().valid(...VEHICLE_STATUSES).default('Available').messages({
         'any.only': `Status must be one of: ${VEHICLE_STATUSES.join(', ')}`
     })
@@ -67,6 +75,14 @@ const updateVehicleSchema = Joi.object({
 
     acquisitionCost: Joi.number().min(0).messages({
         'number.min': 'Acquisition cost cannot be negative'
+    }),
+
+    fuelType: Joi.string().valid('Diesel', 'Electric', 'Hybrid', 'Gasoline').allow(null).messages({
+        'any.only': 'Fuel type must be one of: Diesel, Electric, Hybrid, Gasoline'
+    }),
+
+    registrationExpiryDate: Joi.date().iso().allow(null).messages({
+        'date.format': 'Registration expiry date must be in ISO format (YYYY-MM-DD)'
     }),
 
     status: Joi.string().valid(...VEHICLE_STATUSES).messages({

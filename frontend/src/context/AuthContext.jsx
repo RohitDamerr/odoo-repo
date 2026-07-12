@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
     setError(null);
     setLoading(true);
     try {
-      const { data } = await api.post('/api/auth/login', { email, password });
+      const { data } = await api.post('/auth/login', { email, password });
       const { user: u, tokens } = data.data;
       localStorage.setItem('token', tokens.accessToken);
       localStorage.setItem('user', JSON.stringify(u));
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     setError(null);
     setLoading(true);
     try {
-      const { data } = await api.post('/api/auth/register', { name, email, password, role });
+      const { data } = await api.post('/auth/register', { name, email, password, role });
       const { user: u, tokens } = data.data;
       localStorage.setItem('token', tokens.accessToken);
       localStorage.setItem('user', JSON.stringify(u));
