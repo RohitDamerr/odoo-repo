@@ -4,7 +4,6 @@ import api from '../services/api';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import Badge from '../components/ui/Badge';
-import SearchInput from '../components/ui/SearchInput';
 import Button from '../components/ui/Button';
 
 const STATUS_OPTS = ['Draft', 'Dispatched', 'Completed', 'Cancelled'];
@@ -12,31 +11,11 @@ const STATUS_OPTS = ['Draft', 'Dispatched', 'Completed', 'Cancelled'];
 const COLUMNS = [
   { key: 'source', label: 'Source' },
   { key: 'destination', label: 'Destination' },
-  {
-    key: 'vehicle',
-    label: 'Vehicle',
-    render: (v) => (v ? `${v.registrationNumber}` : '—'),
-  },
-  {
-    key: 'driver',
-    label: 'Driver',
-    render: (v) => (v ? v.name : 'Unassigned'),
-  },
-  {
-    key: 'cargoWeight',
-    label: 'Cargo',
-    render: (v) => (v != null ? `${v} kg` : '—'),
-  },
-  {
-    key: 'revenue',
-    label: 'Revenue',
-    render: (v) => (v != null ? `₹${v.toLocaleString()}` : '—'),
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    render: (v) => <Badge label={v} />,
-  },
+  { key: 'vehicle', label: 'Vehicle', render: (v) => v ? `${v.registrationNumber}` : '—' },
+  { key: 'driver', label: 'Driver', render: (v) => v ? v.name : 'Unassigned' },
+  { key: 'cargoWeight', label: 'Cargo', render: (v) => v != null ? `${v} kg` : '—' },
+  { key: 'revenue', label: 'Revenue', render: (v) => v != null ? `₹${v.toLocaleString()}` : '—' },
+  { key: 'status', label: 'Status', render: (v) => <Badge label={v} /> },
 ];
 
 export default function TripListPage() {
@@ -46,24 +25,33 @@ export default function TripListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [vehicleId, setVehicleId] = useState('');
+  const [vehicles, setVehicles] = useState([]);
+
+  useEffect(() => {
+    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+  }, []);
 
   const fetchTrips = useCallback(async () => {
     setLoading(true);
     try {
       const params = { page, limit: 10, sort: '-createdAt' };
       if (statusFilter) params.status = statusFilter;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (vehicleId) params.vehicle = vehicleId;
       const { data } = await api.get('/trips', { params });
       setTrips(data.data.trips);
       setTotalPages(data.data.pagination?.totalPages || 1);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, statusFilter]);
+    } finally { setLoading(false); }
+  }, [page, statusFilter, startDate, endDate, vehicleId]);
 
   useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
-  const statusCounts = { Draft: 0, Dispatched: 0, Completed: 0, Cancelled: 0 };
-  trips.forEach((t) => { if (statusCounts[t.status] !== undefined) statusCounts[t.status]++; });
+  const clearAll = () => { setStatusFilter(''); setStartDate(''); setEndDate(''); setVehicleId(''); setPage(1); };
+  const hasFilters = statusFilter || startDate || endDate || vehicleId;
 
   return (
     <div className="space-y-6">
@@ -73,12 +61,12 @@ export default function TripListPage() {
           <p className="text-sm text-muted mt-1">Create, dispatch, and monitor trips</p>
         </div>
         <Button onClick={() => navigate('/trips/new')}>
-          <span className="material-symbols-outlined text-lg">add</span>
-          Create Trip
+          <span className="material-symbols-outlined text-lg">add</span>Create Trip
         </Button>
       </div>
 
-      <div className="flex items-center gap-3">
+      {/* Status pills */}
+      <div className="flex flex-wrap items-center gap-2">
         {STATUS_OPTS.map((s) => {
           const active = statusFilter === s;
           const colors = {
@@ -88,32 +76,39 @@ export default function TripListPage() {
             Cancelled: active ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 border border-red-200',
           };
           return (
-            <button
-              key={s}
-              onClick={() => { setStatusFilter(active ? '' : s); setPage(1); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 transition-colors ${colors[s]}`}
-            >
-              <span className={`w-2 h-2 rounded-full ${active ? 'bg-white' : s === 'Draft' ? 'bg-gray-500' : s === 'Dispatched' ? 'bg-blue-500' : s === 'Completed' ? 'bg-green-500' : 'bg-red-500'}`} />
-              {s} ({statusCounts[s] || 0})
-            </button>
+            <button key={s} onClick={() => { setStatusFilter(active ? '' : s); setPage(1); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${colors[s]}`}>{s}</button>
           );
         })}
       </div>
 
-      <Table
-        columns={COLUMNS}
-        data={trips}
-        loading={loading}
-        onRowClick={(row) => navigate(`/trips/${row._id}`)}
-        emptyMessage="No trips found. Create your first trip."
-      />
-
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-
-      <div className="flex items-start gap-2 text-sm text-muted bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <span className="material-symbols-outlined text-amber-600 mt-0.5">info</span>
-        <p><strong className="text-amber-700">Rule:</strong> On Complete — odometer recorded → fuel log → expenses. Vehicle &amp; Driver are restored to Available automatically.</p>
+      {/* Date + Vehicle filter bar */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">From</label>
+          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">To</label>
+          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Vehicle</label>
+          <select value={vehicleId} onChange={(e) => { setVehicleId(e.target.value); setPage(1); }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-on-surface focus:outline-none focus:border-primary">
+            <option value="">All Vehicles</option>
+            {vehicles.map((v) => <option key={v._id} value={v._id}>{v.registrationNumber} — {v.name}</option>)}
+          </select>
+        </div>
+        {hasFilters && (
+          <button onClick={clearAll} className="text-xs text-muted hover:text-primary underline">Clear filters</button>
+        )}
       </div>
+
+      <Table columns={COLUMNS} data={trips} loading={loading} onRowClick={(row) => navigate(`/trips/${row._id}`)} emptyMessage="No trips found." />
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }
