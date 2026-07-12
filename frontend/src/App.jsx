@@ -5,6 +5,9 @@ import ProtectedLayout from './components/layout/ProtectedLayout';
 import VehicleListPage from './pages/VehicleListPage';
 import VehicleFormPage from './pages/VehicleFormPage';
 import VehicleDetailPage from './pages/VehicleDetailPage';
+import TripListPage from './pages/TripListPage';
+import TripFormPage from './pages/TripFormPage';
+import TripDetailPage from './pages/TripDetailPage';
 
 export default function App() {
   return (
@@ -18,7 +21,9 @@ export default function App() {
         <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
         <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
         <Route path="/drivers" element={<Placeholder title="Drivers" />} />
-        <Route path="/trips" element={<Placeholder title="Trips" />} />
+        <Route path="/trips" element={<TripListPage />} />
+        <Route path="/trips/new" element={<TripFormPage />} />
+        <Route path="/trips/:id" element={<TripDetailPage />} />
         <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
         <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
         <Route path="/expenses" element={<Placeholder title="Expenses" />} />

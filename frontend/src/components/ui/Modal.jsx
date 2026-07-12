@@ -10,6 +10,7 @@ export default function Modal({
   onCancel,
   variant = 'primary',
   loading = false,
+  children,
 }) {
   if (!open) return null;
 
@@ -19,6 +20,7 @@ export default function Modal({
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md relative z-10 p-6">
         <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
         {message && <p className="text-sm text-muted mb-5">{message}</p>}
+        {children}
 
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={onCancel} disabled={loading}>
