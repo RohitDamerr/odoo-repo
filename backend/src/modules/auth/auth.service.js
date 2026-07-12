@@ -14,8 +14,9 @@ const { generateTokenPair, verifyRefreshToken } = require('../../utils/jwt');
  * @returns {Promise<{ user: object, tokens: { accessToken: string, refreshToken: string } }>}
  */
 const register = async ({ name, email, password, role }) => {
-    // Check for existing user with the same email
-    const existingUser = await User.findOne({ email });
+    // Check for existing user with the same email (lowercase to match model's lowercase option)
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
         throw ApiError.conflict('A user with this email already exists');
     }
@@ -27,7 +28,7 @@ const register = async ({ name, email, password, role }) => {
     // Create user
     const user = await User.create({
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role: role || 'driver'
     });
@@ -51,8 +52,9 @@ const register = async ({ name, email, password, role }) => {
  * @returns {Promise<{ user: object, tokens: { accessToken: string, refreshToken: string } }>}
  */
 const login = async ({ email, password }) => {
+    const normalizedEmail = email.toLowerCase().trim();
     // Find user — explicitly select password since it's excluded by default
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
     if (!user) {
         throw ApiError.unauthorized('Invalid email or password');

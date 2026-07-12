@@ -67,11 +67,11 @@ router.use(authenticate);
  *           example: 12500.00
  */
 
-// POST /api/v1/expenses
+// POST /api/expenses
 
 /**
  * @swagger
- * /api/v1/expenses:
+ * /api/expenses:
  *   post:
  *     tags: [Expenses]
  *     summary: Log a new expense
@@ -122,11 +122,11 @@ router.use(authenticate);
  */
 router.post('/', authorize('admin', 'fleet_manager'), validate(createExpenseSchema), expenseController.create);
 
-// GET /api/v1/expenses/vehicle/:vehicleId  (before /:id)
+// GET /api/expenses/vehicle/:vehicleId  (before /:id)
 
 /**
  * @swagger
- * /api/v1/expenses/vehicle/{vehicleId}:
+ * /api/expenses/vehicle/{vehicleId}:
  *   get:
  *     tags: [Expenses]
  *     summary: Aggregate expenses by vehicle
@@ -150,11 +150,11 @@ router.post('/', authorize('admin', 'fleet_manager'), validate(createExpenseSche
  */
 router.get('/vehicle/:vehicleId', expenseController.aggregateByVehicle);
 
-// GET /api/v1/expenses/trip/:tripId
+// GET /api/expenses/trip/:tripId
 
 /**
  * @swagger
- * /api/v1/expenses/trip/{tripId}:
+ * /api/expenses/trip/{tripId}:
  *   get:
  *     tags: [Expenses]
  *     summary: Aggregate expenses by trip
@@ -178,11 +178,11 @@ router.get('/vehicle/:vehicleId', expenseController.aggregateByVehicle);
  */
 router.get('/trip/:tripId', expenseController.aggregateByTrip);
 
-// GET /api/v1/expenses
+// GET /api/expenses
 
 /**
  * @swagger
- * /api/v1/expenses:
+ * /api/expenses:
  *   get:
  *     tags: [Expenses]
  *     summary: List all expenses
@@ -231,11 +231,11 @@ router.get('/trip/:tripId', expenseController.aggregateByTrip);
  */
 router.get('/', expenseController.findAll);
 
-// GET /api/v1/expenses/:id
+// GET /api/expenses/:id
 
 /**
  * @swagger
- * /api/v1/expenses/{id}:
+ * /api/expenses/{id}:
  *   get:
  *     tags: [Expenses]
  *     summary: Get a single expense by ID
@@ -261,11 +261,11 @@ router.get('/', expenseController.findAll);
  */
 router.get('/:id', expenseController.findById);
 
-// PATCH /api/v1/expenses/:id
+// PATCH /api/expenses/:id
 
 /**
  * @swagger
- * /api/v1/expenses/{id}:
+ * /api/expenses/{id}:
  *   patch:
  *     tags: [Expenses]
  *     summary: Update an expense entry
@@ -306,11 +306,11 @@ router.get('/:id', expenseController.findById);
  */
 router.patch('/:id', authorize('admin', 'fleet_manager'), validate(updateExpenseSchema), expenseController.update);
 
-// DELETE /api/v1/expenses/:id
+// DELETE /api/expenses/:id
 
 /**
  * @swagger
- * /api/v1/expenses/{id}:
+ * /api/expenses/{id}:
  *   delete:
  *     tags: [Expenses]
  *     summary: Delete an expense entry

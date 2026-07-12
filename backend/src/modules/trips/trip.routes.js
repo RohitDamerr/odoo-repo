@@ -73,11 +73,11 @@ router.use(authenticate);
  *           nullable: true
  */
 
-// POST /api/v1/trips
+// POST /api/trips
 
 /**
  * @swagger
- * /api/v1/trips:
+ * /api/trips:
  *   post:
  *     tags: [Trips]
  *     summary: Create a new trip (Draft)
@@ -121,11 +121,11 @@ router.use(authenticate);
  */
 router.post('/', authorize('admin', 'fleet_manager'), validate(createTripSchema), tripController.create);
 
-// GET /api/v1/trips
+// GET /api/trips
 
 /**
  * @swagger
- * /api/v1/trips:
+ * /api/trips:
  *   get:
  *     tags: [Trips]
  *     summary: List all trips
@@ -174,11 +174,11 @@ router.post('/', authorize('admin', 'fleet_manager'), validate(createTripSchema)
  */
 router.get('/', tripController.findAll);
 
-// GET /api/v1/trips/:id
+// GET /api/trips/:id
 
 /**
  * @swagger
- * /api/v1/trips/{id}:
+ * /api/trips/{id}:
  *   get:
  *     tags: [Trips]
  *     summary: Get a single trip by ID
@@ -204,11 +204,11 @@ router.get('/', tripController.findAll);
  */
 router.get('/:id', tripController.findById);
 
-// PATCH /api/v1/trips/:id
+// PATCH /api/trips/:id
 
 /**
  * @swagger
- * /api/v1/trips/{id}:
+ * /api/trips/{id}:
  *   patch:
  *     tags: [Trips]
  *     summary: Update a trip (Draft only)
@@ -241,11 +241,11 @@ router.get('/:id', tripController.findById);
  */
 router.patch('/:id', authorize('admin', 'fleet_manager'), validate(updateTripSchema), tripController.update);
 
-// DELETE /api/v1/trips/:id
+// DELETE /api/trips/:id
 
 /**
  * @swagger
- * /api/v1/trips/{id}:
+ * /api/trips/{id}:
  *   delete:
  *     tags: [Trips]
  *     summary: Delete a trip (Draft only)
@@ -263,11 +263,11 @@ router.patch('/:id', authorize('admin', 'fleet_manager'), validate(updateTripSch
  */
 router.delete('/:id', authorize('admin'), tripController.remove);
 
-// POST /api/v1/trips/:id/dispatch
+// POST /api/trips/:id/dispatch
 
 /**
  * @swagger
- * /api/v1/trips/{id}/dispatch:
+ * /api/trips/{id}/dispatch:
  *   post:
  *     tags: [Trips]
  *     summary: Dispatch a trip
@@ -307,11 +307,11 @@ router.delete('/:id', authorize('admin'), tripController.remove);
  */
 router.post('/:id/dispatch', authorize('admin', 'fleet_manager', 'dispatcher'), tripController.dispatch);
 
-// POST /api/v1/trips/:id/complete
+// POST /api/trips/:id/complete
 
 /**
  * @swagger
- * /api/v1/trips/{id}/complete:
+ * /api/trips/{id}/complete:
  *   post:
  *     tags: [Trips]
  *     summary: Complete a dispatched trip
@@ -348,11 +348,11 @@ router.post('/:id/dispatch', authorize('admin', 'fleet_manager', 'dispatcher'), 
  */
 router.post('/:id/complete', authorize('admin', 'fleet_manager', 'dispatcher'), validate(completeTripSchema), tripController.complete);
 
-// POST /api/v1/trips/:id/cancel
+// POST /api/trips/:id/cancel
 
 /**
  * @swagger
- * /api/v1/trips/{id}/cancel:
+ * /api/trips/{id}/cancel:
  *   post:
  *     tags: [Trips]
  *     summary: Cancel a trip
