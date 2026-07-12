@@ -16,6 +16,8 @@ const ApiError = require('./errors/ApiError');
 
 // ── Route imports ──────────────────────────────────────────────────
 const authRoutes = require('./modules/auth/auth.routes');
+const driverRoutes = require('./modules/drivers/driver.routes');
+const fuelRoutes = require('./modules/fuel/fuel.routes');
 
 // ── Initialize express ─────────────────────────────────────────────
 const app = express();
@@ -74,6 +76,8 @@ app.get('/api/docs.json', (_req, res) => {
 
 // ── API Routes ─────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/v1/drivers', driverRoutes);
+app.use('/api/v1/fuel', fuelRoutes);
 
 // ── 404 handler — catch unmatched routes ───────────────────────────
 app.use((_req, _res, next) => {
