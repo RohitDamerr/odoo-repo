@@ -70,13 +70,14 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!token;
   const isAdmin = user?.role === 'admin';
   const isFleetManager = user?.role === 'fleet_manager';
+  const isDispatcher = user?.role === 'dispatcher';
   const isSafetyOfficer = user?.role === 'safety_officer';
   const isFinancialAnalyst = user?.role === 'financial_analyst';
 
   return (
     <AuthContext.Provider value={{
       user, token, loading, error, login, register, logout,
-      isAuthenticated, isAdmin, isFleetManager, isSafetyOfficer, isFinancialAnalyst,
+      isAuthenticated, isAdmin, isFleetManager, isDispatcher, isSafetyOfficer, isFinancialAnalyst,
       setError,
     }}>
       {children}

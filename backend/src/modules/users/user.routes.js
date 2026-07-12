@@ -34,7 +34,7 @@ router.use(authorize('admin'));
  *         name: role
  *         schema:
  *           type: string
- *           enum: [admin, fleet_manager, driver, safety_officer, financial_analyst]
+ *           enum: [admin, fleet_manager, dispatcher, driver, safety_officer, financial_analyst]
  *     responses:
  *       200:
  *         description: Paginated user list (passwords excluded)
@@ -88,7 +88,7 @@ router.get('/:id', userController.getById);
  *                 type: string
  *               role:
  *                 type: string
- *                 enum: [admin, fleet_manager, driver, safety_officer, financial_analyst]
+ *                 enum: [admin, fleet_manager, dispatcher, driver, safety_officer, financial_analyst]
  *     responses:
  *       200:
  *         description: User updated

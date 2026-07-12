@@ -8,6 +8,12 @@ import VehicleDetailPage from './pages/VehicleDetailPage';
 import TripListPage from './pages/TripListPage';
 import TripFormPage from './pages/TripFormPage';
 import TripDetailPage from './pages/TripDetailPage';
+import DriverListPage from './pages/DriverListPage';
+import DriverFormPage from './pages/DriverFormPage';
+import DriverDetailPage from './pages/DriverDetailPage';
+import DashboardPage from './pages/DashboardPage';
+import MaintenanceListPage from './pages/MaintenanceListPage';
+import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
 
 export default function App() {
   return (
@@ -15,16 +21,20 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedLayout />}>
-        <Route path="/dashboard" element={<Placeholder title="Dashboard" />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/vehicles" element={<VehicleListPage />} />
         <Route path="/vehicles/new" element={<VehicleFormPage />} />
         <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
         <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
-        <Route path="/drivers" element={<Placeholder title="Drivers" />} />
+        <Route path="/drivers" element={<DriverListPage />} />
+        <Route path="/drivers/new" element={<DriverFormPage />} />
+        <Route path="/drivers/:id" element={<DriverDetailPage />} />
+        <Route path="/drivers/:id/edit" element={<DriverFormPage />} />
         <Route path="/trips" element={<TripListPage />} />
         <Route path="/trips/new" element={<TripFormPage />} />
         <Route path="/trips/:id" element={<TripDetailPage />} />
-        <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
+        <Route path="/maintenance" element={<MaintenanceListPage />} />
+        <Route path="/maintenance/:id" element={<MaintenanceDetailPage />} />
         <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
         <Route path="/expenses" element={<Placeholder title="Expenses" />} />
         <Route path="/reports" element={<Placeholder title="Reports" />} />

@@ -32,7 +32,7 @@ export default function VehicleFormPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/api/vehicles/${id}`).then(({ data }) => {
+    api.get(`/vehicles/${id}`).then(({ data }) => {
       const v = data.data.vehicle;
       setForm({
         registrationNumber: v.registrationNumber || '',
@@ -80,9 +80,9 @@ export default function VehicleFormPage() {
       };
 
       if (isEdit) {
-        await api.put(`/api/vehicles/${id}`, payload);
+        await api.put(`/vehicles/${id}`, payload);
       } else {
-        await api.post('/api/vehicles', payload);
+        await api.post('/vehicles', payload);
       }
 
       navigate('/vehicles');
