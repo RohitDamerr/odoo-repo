@@ -11,6 +11,12 @@ import TripDetailPage from './pages/TripDetailPage';
 import DriverListPage from './pages/DriverListPage';
 import DriverFormPage from './pages/DriverFormPage';
 import DriverDetailPage from './pages/DriverDetailPage';
+import FuelListPage from './pages/FuelListPage';
+import FuelFormPage from './pages/FuelFormPage';
+import FuelDetailPage from './pages/FuelDetailPage';
+import ExpenseListPage from './pages/ExpenseListPage';
+import ExpenseFormPage from './pages/ExpenseFormPage';
+import ExpenseDetailPage from './pages/ExpenseDetailPage';
 
 export default function App() {
   return (
@@ -31,9 +37,15 @@ export default function App() {
         <Route path="/trips/new" element={<TripFormPage />} />
         <Route path="/trips/:id" element={<TripDetailPage />} />
         <Route path="/maintenance" element={<Placeholder title="Maintenance" />} />
-        <Route path="/fuel" element={<Placeholder title="Fuel Logs" />} />
-        <Route path="/expenses" element={<Placeholder title="Expenses" />} />
         <Route path="/reports" element={<Placeholder title="Reports" />} />
+        <Route path="/fuel" element={<FuelListPage />} />
+        <Route path="/fuel/new" element={<FuelFormPage />} />
+        <Route path="/fuel/:id" element={<FuelDetailPage />} />
+        <Route path="/fuel/:id/edit" element={<FuelFormPage />} />
+        <Route path="/expenses" element={<ExpenseListPage />} />
+        <Route path="/expenses/new" element={<ExpenseFormPage />} />
+        <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
+        <Route path="/expenses/:id/edit" element={<ExpenseFormPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
