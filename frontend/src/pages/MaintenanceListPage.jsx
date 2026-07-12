@@ -49,7 +49,7 @@ export default function MaintenanceListPage() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => {
+    api.get('/vehicles', { params: { limit: 100 } }).then(({ data }) => {
       setVehicles(data.data.vehicles || []);
     }).catch(() => {});
   }, []);

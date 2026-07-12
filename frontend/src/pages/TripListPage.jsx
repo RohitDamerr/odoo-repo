@@ -31,7 +31,7 @@ export default function TripListPage() {
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
-    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+    api.get('/vehicles', { params: { limit: 100 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
   }, []);
 
   const fetchTrips = useCallback(async () => {
