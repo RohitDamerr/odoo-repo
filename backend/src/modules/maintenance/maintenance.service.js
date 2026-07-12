@@ -1,6 +1,7 @@
 const MaintenanceLog = require('../../models/MaintenanceLog');
 const Vehicle = require('../../models/Vehicle');
 const ApiError = require('../../errors/ApiError');
+const { onCreateMaintenanceExpense } = require('../../services/integration.service');
 
 // ────────────────────────────────────────────────────────────────────
 //  Helpers
@@ -163,7 +164,11 @@ const close = async (id, opts = {}) => {
         }
     }
 
-    return MaintenanceLog.findById(log._id).populate('vehicle').lean();
+    // Cross-integration: closed maintenance → expense record
+    const populated = await MaintenanceLog.findById(log._id).populate('vehicle').lean();
+    await onCreateMaintenanceExpense(populated).catch(() => {}); // fire-and-forget, non-blocking
+
+    return populated;
 };
 
 /**

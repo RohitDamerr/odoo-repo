@@ -22,6 +22,10 @@ const expenseRoutes = require('./modules/expenses/expense.routes');
 const tripRoutes = require('./modules/trips/trip.routes');
 const vehicleRoutes = require('./modules/vehicles/vehicle.routes');
 const maintenanceRoutes = require('./modules/maintenance/maintenance.routes');
+const orchestrationRoutes = require('./modules/orchestration/orchestration.routes');
+const reportRoutes = require('./modules/reports/report.routes');
+const dashboardRoutes = require('./modules/dashboard/dashboard.routes');
+const userRoutes = require('./modules/users/user.routes');
 
 // ── Initialize express ─────────────────────────────────────────────
 const app = express();
@@ -37,7 +41,9 @@ app.use(helmet());
 // CORS
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+        origin: process.env.CORS_ORIGIN
+            ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
+            : ['http://localhost:5173', 'http://localhost:3000'],
         credentials: true
     })
 );
@@ -56,6 +62,9 @@ app.use(cookieParser());
 
 // Compression
 app.use(compression());
+
+// ── Root — redirect to API docs ────────────────────────────────────
+app.get('/', (_req, res) => res.redirect('/api/docs'));
 
 // ── Health check ───────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
@@ -82,10 +91,14 @@ app.get('/api/docs.json', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/fuel', fuelRoutes);
-app.use('/api/v1/expenses', expenseRoutes);
-app.use('/api/v1/trips', tripRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/trips', tripRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/orchestration', orchestrationRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRoutes);
 
 // ── 404 handler — catch unmatched routes ───────────────────────────
 app.use((_req, _res, next) => {
