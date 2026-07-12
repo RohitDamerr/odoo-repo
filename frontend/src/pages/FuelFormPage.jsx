@@ -18,7 +18,7 @@ export default function FuelFormPage() {
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
-    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || []));
+    api.get('/vehicles', { params: { limit: 200 } }).then(({ data }) => setVehicles(data.data.vehicles || [])).catch(() => {});
     if (id) {
       api.get(`/fuel/${id}`).then(({ data }) => {
         const f = data.data.fuelLog;

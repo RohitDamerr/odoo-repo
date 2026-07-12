@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import Badge from '../components/ui/Badge';
@@ -56,6 +57,8 @@ const COLUMNS = [
 
 export default function DriverListPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isDriver = user?.role === 'driver';
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -93,10 +96,12 @@ export default function DriverListPage() {
           <h1 className="text-2xl font-semibold text-primary">Driver &amp; Safety Profiles</h1>
           <p className="text-sm text-muted mt-1">Manage active fleet personnel and monitor real-time compliance status.</p>
         </div>
-        <Button onClick={() => navigate('/drivers/new')}>
-          <span className="material-symbols-outlined text-lg">add</span>
-          Add New Driver
-        </Button>
+        {!isDriver && (
+          <Button onClick={() => navigate('/drivers/new')}>
+            <span className="material-symbols-outlined text-lg">add</span>
+            Add New Driver
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-4">

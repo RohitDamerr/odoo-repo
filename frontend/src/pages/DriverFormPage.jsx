@@ -31,7 +31,7 @@ export default function DriverFormPage() {
         contactNumber: d.contactNumber || '', safetyScore: d.safetyScore != null ? String(d.safetyScore) : '100',
         status: d.status || 'Available',
       });
-    }).finally(() => setLoading(false));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
   const handleChange = (e) => {
